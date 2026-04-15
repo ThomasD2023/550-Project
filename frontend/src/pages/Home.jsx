@@ -28,7 +28,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <Link to="/vineyards" className="btn btn-gold">Explore Vineyards</Link>
-            <Link to="/planner" className="btn btn-secondary" style={{ borderColor: '#fff', color: '#fff' }}>Plan a Trip</Link>
+            <Link to="/planner" className="btn hero-btn-outline">Plan a Trip</Link>
           </div>
         </div>
       </section>

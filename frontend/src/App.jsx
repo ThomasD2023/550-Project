@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
@@ -13,18 +14,20 @@ import './styles/global.css';
 export default function App() {
   return (
     <Router>
-      <Navbar />
-      <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/vineyards" element={<VineyardExplorer />} />
-          <Route path="/vineyards/:vineyard_id" element={<VineyardDetail />} />
-          <Route path="/insights" element={<Insights />} />
-          <Route path="/planner" element={<TripPlanner />} />
-          <Route path="/hotels-dining" element={<HotelsDining />} />
-          <Route path="/attractions" element={<Attractions />} />
-        </Routes>
-      </ErrorBoundary>
+      <AuthProvider>
+        <Navbar />
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/vineyards" element={<VineyardExplorer />} />
+            <Route path="/vineyards/:vineyard_id" element={<VineyardDetail />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/planner" element={<TripPlanner />} />
+            <Route path="/hotels-dining" element={<HotelsDining />} />
+            <Route path="/attractions" element={<Attractions />} />
+          </Routes>
+        </ErrorBoundary>
+      </AuthProvider>
     </Router>
   );
 }

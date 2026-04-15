@@ -121,3 +121,18 @@
   .hero-title { font-size: 2rem; }
   .stat-number { font-size: 1.5rem; }
 }
+
+/* Hero outline button — wine text on white bg, white text on hover */
+.hero-btn-outline {
+  background: rgba(255, 255, 255, 0.95);
+  color: #722F37;
+  border: 2px solid #fff;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.hero-btn-outline:hover {
+  background: #722F37;
+  color: #fff;
+  border-color: #722F37;
+}
