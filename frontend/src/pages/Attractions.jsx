@@ -15,7 +15,10 @@ export default function Attractions() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [countries, setCountries] = useState([]);
-  const [filters, setFilters] = useState({ category: '', country: '' });
+  // selectedCategory is exact category name from tag click
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const [country, setCountry] = useState('');
 
   useEffect(() => {
     getCategoryStats(20).then(d => setCategories(d.categories || [])).catch(console.error);
@@ -24,14 +27,15 @@ export default function Attractions() {
 
   useEffect(() => {
     fetchPois();
-  }, [page, filters]);
+  }, [page, selectedCategory, searchText, country]);
 
   const fetchPois = async () => {
     setLoading(true);
     try {
       const data = await browsePois({
-        category: filters.category || undefined,
-        country: filters.country || undefined,
+        category: selectedCategory || undefined,
+        country: country || undefined,
+        search: searchText || undefined,
         limit: LIMIT,
         offset: (page - 1) * LIMIT,
       });
@@ -42,6 +46,27 @@ export default function Attractions() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCategoryClick = (catName) => {
+    if (selectedCategory === catName) {
+      setSelectedCategory('');
+    } else {
+      setSelectedCategory(catName);
+    }
+    setSearchText('');
+    setPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    setSelectedCategory('');
+    setPage(1);
+  };
+
+  const handleCountryChange = (e) => {
+    setCountry(e.target.value);
+    setPage(1);
   };
 
   const chartData = categories.slice(0, 12).map(c => ({
@@ -85,21 +110,21 @@ export default function Attractions() {
         {/* Filters */}
         <div className="filters-bar">
           <div className="input-group" style={{ flex: 1, minWidth: 200 }}>
-            <label>Category</label>
+            <label>SEARCH</label>
             <input
               className="input-field"
               type="text"
-              placeholder="e.g. museum, park, church..."
-              value={filters.category}
-              onChange={e => { setFilters({ ...filters, category: e.target.value }); setPage(1); }}
+              placeholder="Search attractions by name..."
+              value={searchText}
+              onChange={handleSearchChange}
             />
           </div>
           <div className="input-group" style={{ minWidth: 200 }}>
-            <label>Country</label>
+            <label>COUNTRY</label>
             <select
               className="input-field"
-              value={filters.country}
-              onChange={e => { setFilters({ ...filters, country: e.target.value }); setPage(1); }}
+              value={country}
+              onChange={handleCountryChange}
             >
               <option value="">All Countries</option>
               {countries.map(c => <option key={c} value={c}>{c}</option>)}
@@ -112,11 +137,8 @@ export default function Attractions() {
           {categories.slice(0, 12).map(c => (
             <button
               key={c.category_name}
-              className={`chip ${filters.category === c.category_name ? 'active' : ''}`}
-              onClick={() => {
-                setFilters({ ...filters, category: filters.category === c.category_name ? '' : c.category_name });
-                setPage(1);
-              }}
+              className={`chip ${selectedCategory === c.category_name ? 'active' : ''}`}
+              onClick={() => handleCategoryClick(c.category_name)}
             >
               {c.category_name} ({Number(c.count).toLocaleString()})
             </button>

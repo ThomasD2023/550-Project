@@ -97,6 +97,7 @@ export const browsePois = (params = {}) => {
   const qs = new URLSearchParams();
   if (params.category) qs.set('category', params.category);
   if (params.country) qs.set('country', params.country);
+  if (params.search) qs.set('search', params.search);
   qs.set('limit', params.limit || 20);
   qs.set('offset', params.offset || 0);
   return apiFetch(`/api/pois?${qs}`);

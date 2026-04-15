@@ -17,6 +17,7 @@ router.get('/', async (req, res, next) => {
     const params = {
       category: parseStringParam(req.query.category),
       country: parseStringParam(req.query.country),
+      search: parseStringParam(req.query.search),
       limit: parseIntParam(req.query.limit, 20, 1, 100),
       offset: parseIntParam(req.query.offset, 0, 0, 100000),
     };

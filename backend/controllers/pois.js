@@ -9,29 +9,32 @@ const cache = require('../config/cache');
 /**
  * Q12 — Browse POIs by Category and Location
  * 
- * Filters and browses POIs by category keyword (ILIKE) and country.
+ * Filters and browses POIs by category name (exact match) and country.
  * Joins POI, POI_Category, Category, and location tables.
  * Ordered by num_links DESC (popularity).
  * 
  * Indexes used: idx_poi_num_links, idx_poi_city, idx_poi_cat_poi, idx_poi_cat_cat
  * 
- * @param {Object} params - { category, country, limit, offset }
+ * @param {Object} params - { category, country, search, limit, offset }
  */
-async function browsePois({ category, country, limit = 20, offset = 0 }) {
+async function browsePois({ category, country, search, limit = 20, offset = 0 }) {
+  // Use exact match for category (when clicking a tag chip)
+  // Use ILIKE search for free-text search in the input field
   const countSql = `
-    SELECT COUNT(DISTINCT p.poi_id) AS total
+    SELECT COUNT(*) AS total
     FROM poi p
     JOIN poi_category pc ON p.poi_id = pc.poi_id
     JOIN category cat ON pc.category_id = cat.category_id
     JOIN city ci ON p.city_id = ci.city_id
     JOIN state s ON ci.state_id = s.state_id
     JOIN country co ON s.country_id = co.country_id
-    WHERE ($1::text IS NULL OR cat.category_name ILIKE '%' || $1 || '%')
-      AND ($2::text IS NULL OR co.country_name = $2);
+    WHERE ($1::text IS NULL OR cat.category_name = $1)
+      AND ($2::text IS NULL OR co.country_name = $2)
+      AND ($3::text IS NULL OR p.name ILIKE '%' || $3 || '%');
   `;
 
   const dataSql = `
-    SELECT DISTINCT ON (p.poi_id) p.poi_id, p.name, cat.category_name,
+    SELECT p.poi_id, p.name, cat.category_name,
            p.num_links, p.latitude, p.longitude,
            ci.city_name, s.state_name, co.country_name
     FROM poi p
@@ -40,16 +43,17 @@ async function browsePois({ category, country, limit = 20, offset = 0 }) {
     JOIN city ci ON p.city_id = ci.city_id
     JOIN state s ON ci.state_id = s.state_id
     JOIN country co ON s.country_id = co.country_id
-    WHERE ($1::text IS NULL OR cat.category_name ILIKE '%' || $1 || '%')
+    WHERE ($1::text IS NULL OR cat.category_name = $1)
       AND ($2::text IS NULL OR co.country_name = $2)
-    ORDER BY p.poi_id, p.num_links DESC
-    LIMIT $3 OFFSET $4;
+      AND ($3::text IS NULL OR p.name ILIKE '%' || $3 || '%')
+    ORDER BY p.num_links DESC
+    LIMIT $4 OFFSET $5;
   `;
 
   const start = Date.now();
   const [countResult, dataResult] = await Promise.all([
-    pool.query(countSql, [category, country]),
-    pool.query(dataSql, [category, country, limit, offset]),
+    pool.query(countSql, [category, country, search]),
+    pool.query(dataSql, [category, country, search, limit, offset]),
   ]);
   const duration = Date.now() - start;
   console.log(`[QUERY] Q12 — Browse POIs: ${duration}ms, ${dataResult.rows.length} rows`);
