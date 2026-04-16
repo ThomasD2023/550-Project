@@ -8,9 +8,9 @@ A full-stack web application for exploring vineyards, Michelin restaurants, luxu
 |-------|-----------|
 | Frontend | React 19 + Vite 8, React Router, Recharts, Leaflet |
 | Backend | Node.js + Express 4, PostgreSQL (pg driver) |
-| Database | PostgreSQL on AWS RDS (8 tables, 500K+ records) |
+| Database | PostgreSQL on AWS RDS (8 tables, 1.66M+ records) |
 | Caching | node-cache (server-side, TTL-based) |
-| Auth | JWT httpOnly cookies (prepared for Google OAuth) |
+| Auth | JWT httpOnly cookies (for Google OAuth) |
 | Deployment | Vercel (frontend) + Render (backend) |
 
 ## Project Structure
